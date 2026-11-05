@@ -2,7 +2,7 @@ ingest:
   cache_dir: data/external
   raw: data/raw/covertype.csv
   wilderness_column: Wilderness_Area_0
-  n_rows: 10000
+  n_rows: 20000
   seed: 42
 data:
   target: Cover_Type
