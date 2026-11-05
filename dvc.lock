@@ -1,0 +1,145 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python -m src.prepare
+    deps:
+    - path: data/raw/covertype.csv
+      hash: md5
+      md5: 33b232ce69b5cb1b7a6717b5ad9bd7d6
+      size: 2373816
+    - path: src/__init__.py
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    - path: src/prepare.py
+      hash: md5
+      md5: 8850d4c485893e2e111a36b1b1ac7a53
+      size: 1704
+    - path: src/utils.py
+      hash: md5
+      md5: 636181967923e34b619c4e5407b489c7
+      size: 377
+    params:
+      params.yaml:
+        data:
+          target: Cover_Type
+          test_size: 0.2
+          split_seed: 42
+        ingest.raw: data/raw/covertype.csv
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 2862c58b24358cdb546d358abef69926
+      size: 475224
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 68441c65869776a227fa852cedcd20ec
+      size: 1899382
+  featurize:
+    cmd: python -m src.featurize
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 2862c58b24358cdb546d358abef69926
+      size: 475224
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 68441c65869776a227fa852cedcd20ec
+      size: 1899382
+    - path: src/__init__.py
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    - path: src/featurize.py
+      hash: md5
+      md5: c9b64ab82cf45712e756cab2dcd27cff
+      size: 962
+    - path: src/utils.py
+      hash: md5
+      md5: 636181967923e34b619c4e5407b489c7
+      size: 377
+    params:
+      params.yaml:
+        data.target: Cover_Type
+        featurize:
+          drop:
+          - Wilderness_Area_0
+          - Wilderness_Area_1
+          - Wilderness_Area_2
+          - Wilderness_Area_3
+    outs:
+    - path: data/features/test.csv
+      hash: md5
+      md5: 118064620a2fd5dc3deb8bd8848ed6a0
+      size: 443152
+    - path: data/features/train.csv
+      hash: md5
+      md5: 30b5292b79086f7f56e31a8255c0d8a9
+      size: 1771310
+  train:
+    cmd: python -m src.train
+    deps:
+    - path: data/features/train.csv
+      hash: md5
+      md5: 30b5292b79086f7f56e31a8255c0d8a9
+      size: 1771310
+    - path: src/__init__.py
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    - path: src/train.py
+      hash: md5
+      md5: c504732301812706d29efb5f72bf393a
+      size: 1262
+    - path: src/utils.py
+      hash: md5
+      md5: 636181967923e34b619c4e5407b489c7
+      size: 377
+    params:
+      params.yaml:
+        data.target: Cover_Type
+        train:
+          model: random_forest
+          n_estimators: 200
+          max_depth: 20
+          min_samples_leaf: 1
+          seed: 42
+          n_jobs: -1
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: eb89ceb7a390df62bab2bbe8a24707df
+      size: 41989232
+  evaluate:
+    cmd: python -m src.evaluate
+    deps:
+    - path: data/features/test.csv
+      hash: md5
+      md5: 118064620a2fd5dc3deb8bd8848ed6a0
+      size: 443152
+    - path: models/model.joblib
+      hash: md5
+      md5: eb89ceb7a390df62bab2bbe8a24707df
+      size: 41989232
+    - path: src/__init__.py
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    - path: src/evaluate.py
+      hash: md5
+      md5: 86e9536ce1c5ce7bb5a582078e395fa6
+      size: 1221
+    - path: src/utils.py
+      hash: md5
+      md5: 636181967923e34b619c4e5407b489c7
+      size: 377
+    params:
+      params.yaml:
+        data.target: Cover_Type
+        evaluate:
+          min_accuracy: 0.7
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: d0532702c5e8f749c8a585dbf2ec3027
+      size: 76
